@@ -29,6 +29,7 @@ namespace ConsoleApp1
             string searchServiceName = "";
             string queryApiKey = "";
             string indexName = "";
+            string query = "my query";
 
             SearchIndexClient indexClient = new SearchIndexClient(searchServiceName, indexName, new SearchCredentials(queryApiKey));
 
@@ -38,7 +39,7 @@ namespace ConsoleApp1
                 Top = 10000
             };
 
-            var results = indexClient.Documents.Search<Doc>("well");
+            var results = indexClient.Documents.Search<Doc>(query);
 
             int c = 0;
             using (var sw = new StreamWriter(outFile))
