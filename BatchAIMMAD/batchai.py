@@ -14,8 +14,10 @@ resource_group_name = ''
 subscription_id = ''
 cluster_name = ''
 location = 'eastus'
-command_line = 'python /mnt/batch/tasks/shared/LS_root/mounts/bfs/train.py {0} {1} {2} {3}'
+command_line = 'python /mnt/batch/tasks/shared/LS_root/mounts/bfs/train.py {0} {1} {2} {3} {4}' # to be executed within each job
 std_out_err_path_prefix = '/mnt/batch/tasks/shared/LS_root/mounts/bfs'
+config_file_path = '/mnt/batch/tasks/shared/LS_root/mounts/bfs/train_config.json'
+
 node_count = 2
 
 # job parameters
@@ -30,20 +32,19 @@ credentials = ServicePrincipalCredentials(
     tenant=TENANT_ID
 )
 
-batchai_client = batchai.BatchAIManagementClient(
-    credentials=credentials, subscription_id=subscription_id)
+# log in and create client
+batchai_client = batchai.BatchAIManagementClient(credentials=credentials, subscription_id=subscription_id)
+# get cluster object
 cluster = batchai_client.clusters.get(resource_group_name, cluster_name)
 
-# run an async job for each sensor
+# run an async job for each sensor (execute train.py for each)
 for device_id in device_ids:
     for tag in tags:
         job_name = 'train{0}_{1}'.format(device_id, tag)
-        custom_settings = baimodels.CustomToolkitSettings(
-            command_line=command_line.format(device_id, tag, ts_from, ts_to))
+        custom_settings = baimodels.CustomToolkitSettings(command_line=command_line.format(device_id, tag, ts_from, ts_to, config_file_path))
         print('command line: ' + custom_settings.command_line)
         params = baimodels.job_create_parameters.JobCreateParameters(location=location,
-                                                                     cluster=baimodels.ResourceId(
-                                                                         cluster.id),
+                                                                     cluster=baimodels.ResourceId(cluster.id),
                                                                      node_count=node_count,
                                                                      std_out_err_path_prefix=std_out_err_path_prefix,
                                                                      custom_toolkit_settings=custom_settings
