@@ -53,7 +53,7 @@ for device_id in device_ids:
         batchai_client.jobs.create(resource_group_name, job_name, params)
 
 
-# print or delete jobs
+# print or delete jobs (subscription level)
 #for j in batchai_client.jobs.list():
     #print(j.name)
     #batchai_client.jobs.delete(resource_group_name, j.name)
